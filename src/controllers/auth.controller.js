@@ -163,4 +163,24 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, forgotPassword, resetPassword, changePassword };
+const updateProfile = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Name is required.' });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { name: name.trim() },
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
+    });
+
+    res.json({ success: true, message: 'Profile updated successfully.', data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update profile.', error: error.message });
+  }
+};
+
+module.exports = { register, login, getMe, forgotPassword, resetPassword, changePassword, updateProfile };

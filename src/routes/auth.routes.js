@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { register, login, getMe, forgotPassword, resetPassword, changePassword } = require('../controllers/auth.controller');
+const { register, login, getMe, forgotPassword, resetPassword, changePassword, updateProfile } = require('../controllers/auth.controller');
 const { authenticate } = require('../middleware/auth.middleware');
 const { validate } = require('../middleware/validate.middleware');
 
@@ -55,6 +55,14 @@ router.put(
   ],
   validate,
   changePassword
+);
+
+router.put(
+  '/profile',
+  authenticate,
+  [body('name').trim().notEmpty().withMessage('Name is required')],
+  validate,
+  updateProfile
 );
 
 module.exports = router;
