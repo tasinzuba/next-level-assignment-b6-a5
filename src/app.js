@@ -1,7 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const passport = require('./utils/passport');
-require('dotenv').config();
 
 const authRoutes = require('./routes/auth.routes');
 const movieRoutes = require('./routes/movie.routes');
