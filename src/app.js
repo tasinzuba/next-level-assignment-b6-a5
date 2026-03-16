@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const passport = require('./utils/passport');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth.routes');
@@ -14,12 +15,13 @@ const { errorHandler } = require('./middleware/error.middleware');
 const app = express();
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
   credentials: true,
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 // Routes
 app.use('/api/auth', authRoutes);

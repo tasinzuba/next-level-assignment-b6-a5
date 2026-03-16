@@ -3,8 +3,22 @@ const { body } = require('express-validator');
 const { register, login, getMe, forgotPassword, resetPassword, changePassword, updateProfile } = require('../controllers/auth.controller');
 const { authenticate } = require('../middleware/auth.middleware');
 const { validate } = require('../middleware/validate.middleware');
+const passport = require('../utils/passport');
 
 const router = express.Router();
+
+// Google OAuth
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=google_failed` }),
+  (req, res) => {
+    const { user, token } = req.user;
+    const frontendUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    res.redirect(`${frontendUrl}/auth/google/success?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+  }
+);
 
 router.post(
   '/register',
