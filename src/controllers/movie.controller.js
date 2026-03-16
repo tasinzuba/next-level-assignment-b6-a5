@@ -44,7 +44,7 @@ const getAllMovies = async (req, res) => {
         ? movie.reviews.reduce((sum, r) => sum + r.rating, 0) / movie.reviews.length
         : 0;
       const { reviews, ...rest } = movie;
-      return { ...rest, avgRating: parseFloat(avgRating.toFixed(1)) };
+      return { ...rest, posterUrl: movie.thumbnail, averageRating: parseFloat(avgRating.toFixed(1)), totalReviews: movie._count.reviews };
     });
 
     res.json({
@@ -86,7 +86,7 @@ const getMovieById = async (req, res) => {
 
     res.json({
       success: true,
-      data: { ...movie, avgRating: parseFloat(avgRating.toFixed(1)) },
+      data: { ...movie, posterUrl: movie.thumbnail, averageRating: parseFloat(avgRating.toFixed(1)), totalReviews: movie._count.reviews },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch movie.', error: error.message });
@@ -160,7 +160,7 @@ const getFeaturedMovies = async (req, res) => {
         ? movie.reviews.reduce((sum, r) => sum + r.rating, 0) / movie.reviews.length
         : 0;
       const { reviews, ...rest } = movie;
-      return { ...rest, avgRating: parseFloat(avgRating.toFixed(1)) };
+      return { ...rest, posterUrl: movie.thumbnail, averageRating: parseFloat(avgRating.toFixed(1)), totalReviews: movie._count.reviews };
     });
 
     res.json({ success: true, data: moviesWithRating });
