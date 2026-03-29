@@ -2,7 +2,7 @@ const prisma = require('../utils/prisma');
 
 const getAllMovies = async (req, res) => {
   try {
-    const { genre, platform, year, priceType, search, sort = 'createdAt', order = 'desc', page = 1, limit = 12 } = req.query;
+    const { genre, platform, year, priceType, mediaType, search, sort = 'createdAt', order = 'desc', page = 1, limit = 12 } = req.query;
 
     const where = {};
 
@@ -19,6 +19,7 @@ const getAllMovies = async (req, res) => {
     if (platform) where.platform = { has: platform };
     if (year) where.releaseYear = parseInt(year);
     if (priceType) where.priceType = priceType;
+    if (mediaType) where.mediaType = mediaType;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 

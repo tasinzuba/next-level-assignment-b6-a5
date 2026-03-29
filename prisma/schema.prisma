@@ -16,6 +16,11 @@ enum PriceType {
   PREMIUM
 }
 
+enum MediaType {
+  MOVIE
+  SERIES
+}
+
 enum ReviewStatus {
   PENDING
   PUBLISHED
@@ -61,6 +66,7 @@ model Movie {
   cast           String[]
   platform       String[]
   priceType      PriceType   @default(FREE)
+  mediaType      MediaType   @default(MOVIE)
   streamingUrl   String?
   thumbnail      String?
   createdAt      DateTime    @default(now())
