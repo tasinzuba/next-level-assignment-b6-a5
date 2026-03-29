@@ -28,6 +28,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "prisma": "^7.5.0",
+    "sslcommerz-lts": "^1.2.0",
     "ws": "^8.19.0"
   },
   "devDependencies": {

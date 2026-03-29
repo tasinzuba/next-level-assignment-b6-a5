@@ -9,6 +9,7 @@ const reviewRoutes = require('./routes/review.routes');
 const commentRoutes = require('./routes/comment.routes');
 const watchlistRoutes = require('./routes/watchlist.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');
+const paymentRoutes = require('./routes/payment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const { errorHandler } = require('./middleware/error.middleware');
 
@@ -30,6 +31,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check
