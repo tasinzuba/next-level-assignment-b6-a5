@@ -29,7 +29,8 @@ app.use(
 
       const isAllowed =
         allowedOrigins.includes(origin) ||
-        /^https:\/\/.*\.vercel\.app$/.test(origin);
+        /^https:\/\/.*\.vercel\.app$/.test(origin) ||
+        /^https:\/\/.*\.sslcommerz\.com$/.test(origin);
 
       if (isAllowed) {
         callback(null, true);

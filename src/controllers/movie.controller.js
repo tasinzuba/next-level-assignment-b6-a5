@@ -98,12 +98,25 @@ const createMovie = async (req, res) => {
   try {
     const { title, synopsis, genre, releaseYear, director, cast, platform, priceType, mediaType, streamingUrl, thumbnail } = req.body;
 
-    const movie = await prisma.movie.create({
-      data: { title, synopsis, genre, releaseYear: parseInt(releaseYear), director, cast, platform, priceType, ...(mediaType && { mediaType }), streamingUrl, thumbnail },
-    });
+    const data = {
+      title,
+      synopsis,
+      genre: genre || [],
+      releaseYear: parseInt(releaseYear),
+      director,
+      cast: cast || [],
+      platform: platform || [],
+      priceType: priceType || 'FREE',
+      streamingUrl: streamingUrl || null,
+      thumbnail: thumbnail || null,
+    };
+    if (mediaType) data.mediaType = mediaType;
+
+    const movie = await prisma.movie.create({ data });
 
     res.status(201).json({ success: true, message: 'Movie created successfully.', data: movie });
   } catch (error) {
+    console.error('Create movie error:', error);
     res.status(500).json({ success: false, message: 'Failed to create movie.', error: error.message });
   }
 };
@@ -113,21 +126,22 @@ const updateMovie = async (req, res) => {
     const { id } = req.params;
     const { title, synopsis, genre, releaseYear, director, cast, platform, priceType, mediaType, streamingUrl, thumbnail } = req.body;
 
+    const data = {};
+    if (title !== undefined) data.title = title;
+    if (synopsis !== undefined) data.synopsis = synopsis;
+    if (genre !== undefined) data.genre = genre;
+    if (releaseYear !== undefined) data.releaseYear = parseInt(releaseYear);
+    if (director !== undefined) data.director = director;
+    if (cast !== undefined) data.cast = cast;
+    if (platform !== undefined) data.platform = platform;
+    if (priceType !== undefined) data.priceType = priceType;
+    if (mediaType !== undefined) data.mediaType = mediaType;
+    if (streamingUrl !== undefined) data.streamingUrl = streamingUrl;
+    if (thumbnail !== undefined) data.thumbnail = thumbnail;
+
     const movie = await prisma.movie.update({
       where: { id },
-      data: {
-        ...(title && { title }),
-        ...(synopsis && { synopsis }),
-        ...(genre && { genre }),
-        ...(releaseYear && { releaseYear: parseInt(releaseYear) }),
-        ...(director && { director }),
-        ...(cast && { cast }),
-        ...(platform && { platform }),
-        ...(priceType && { priceType }),
-        ...(mediaType && { mediaType }),
-        ...(streamingUrl !== undefined && { streamingUrl }),
-        ...(thumbnail !== undefined && { thumbnail }),
-      },
+      data,
     });
 
     res.json({ success: true, message: 'Movie updated successfully.', data: movie });

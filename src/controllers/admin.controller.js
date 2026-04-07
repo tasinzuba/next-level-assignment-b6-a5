@@ -134,4 +134,89 @@ const getTopRatedMovies = async (req, res) => {
   }
 };
 
-module.exports = { getDashboardStats, getPendingReviews, getAllUsers, updateUserRole, getTopRatedMovies };
+const getChartData = async (req, res) => {
+  try {
+    // 1. Genre distribution - count movies per genre
+    const movies = await prisma.movie.findMany({ select: { genre: true } });
+    const genreCounts = {};
+    movies.forEach(m => {
+      (m.genre || []).forEach(g => {
+        genreCounts[g] = (genreCounts[g] || 0) + 1;
+      });
+    });
+    const genreDistribution = Object.entries(genreCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+
+    // 2. Monthly user registrations (last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const users = await prisma.user.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    });
+    const monthlyUsers = {};
+    users.forEach(u => {
+      const month = new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      monthlyUsers[month] = (monthlyUsers[month] || 0) + 1;
+    });
+    const userGrowth = Object.entries(monthlyUsers).map(([month, users]) => ({ month, users }));
+
+    // 3. Review status breakdown
+    const [published, pending, unpublished] = await Promise.all([
+      prisma.review.count({ where: { status: 'PUBLISHED' } }),
+      prisma.review.count({ where: { status: 'PENDING' } }),
+      prisma.review.count({ where: { status: 'UNPUBLISHED' } }),
+    ]);
+    const reviewStatus = [
+      { name: 'Published', value: published, color: '#22c55e' },
+      { name: 'Pending', value: pending, color: '#eab308' },
+      { name: 'Rejected', value: unpublished, color: '#ef4444' },
+    ];
+
+    // 4. Monthly reviews (last 6 months)
+    const reviews = await prisma.review.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    });
+    const monthlyReviews = {};
+    reviews.forEach(r => {
+      const month = new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      monthlyReviews[month] = (monthlyReviews[month] || 0) + 1;
+    });
+    const reviewGrowth = Object.entries(monthlyReviews).map(([month, reviews]) => ({ month, reviews }));
+
+    // 5. Movie vs Series count
+    const movieCount = await prisma.movie.count({ where: { mediaType: 'MOVIE' } });
+    const seriesCount = await prisma.movie.count({ where: { mediaType: 'SERIES' } });
+    const mediaTypeDistribution = [
+      { name: 'Movies', value: movieCount, color: '#3b82f6' },
+      { name: 'Series', value: seriesCount, color: '#a855f7' },
+    ];
+
+    // 6. Free vs Premium
+    const freeCount = await prisma.movie.count({ where: { priceType: 'FREE' } });
+    const premiumCount = await prisma.movie.count({ where: { priceType: 'PREMIUM' } });
+    const priceDistribution = [
+      { name: 'Free', value: freeCount, color: '#22c55e' },
+      { name: 'Premium', value: premiumCount, color: '#eab308' },
+    ];
+
+    res.json({
+      success: true,
+      data: {
+        genreDistribution,
+        userGrowth,
+        reviewStatus,
+        reviewGrowth,
+        mediaTypeDistribution,
+        priceDistribution,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch chart data.', error: error.message });
+  }
+};
+
+module.exports = { getDashboardStats, getPendingReviews, getAllUsers, updateUserRole, getTopRatedMovies, getChartData };

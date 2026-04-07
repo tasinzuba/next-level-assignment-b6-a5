@@ -26,7 +26,7 @@ const initiatePayment = async (req, res) => {
     const { amount, currency } = PLAN_PRICES[plan];
     const tranId = `SUB-${req.user.id}-${plan}-${Date.now()}`;
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:3001';
-    const serverUrl = `http://localhost:${process.env.PORT || 5000}`;
+    const serverUrl = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 5000}`;
 
     const data = {
       total_amount: amount,
